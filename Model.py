@@ -6,6 +6,7 @@ import pandas as pd
 import time
 import numpy as np
 import random
+import cv2
 
 
 #PubChem access API, chem tools et al
@@ -61,14 +62,16 @@ rdk_mol = Chem.MolFromSmiles(c_smile)
 #Get Fingerprint as numpy array
 fingerprint_c = np.array(RDKFingerprint(rdk_mol))
 
-print("F_Print: ", fingerprint_c, len(fingerprint_c))
+print(c.iupac_name, "F_Print: ", fingerprint_c, len(fingerprint_c))
 #'''
 
 #-------------Image Loading
 #'''
-loaded_img = tf.keras.preprocessing.image.load_img('uh.png', True)
+loaded_img = tf.keras.preprocessing.image.load_img('uh.png', True)#colour_mode="grayscale")
 print(loaded_img)
 
+#Display image size
+print(cv2.imread('uh.png').shape)
 
 #'''
 
