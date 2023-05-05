@@ -90,8 +90,8 @@ def mol_to_graph(mol):
     for bond in bonds:
         graph.add_edge(bond.GetBeginAtomIdx(),
                       bond.GetEndAtomIdx(),
-                      bond_type=bond.GetBondType()
-                      bond_stereo=bond.GetBondStereo()
+                      bond_type=bond.GetBondType(),
+                      bond_stereo=bond.GetStereo(),
                       bond_dir=bond.GetBondDir())
 
     return graph
