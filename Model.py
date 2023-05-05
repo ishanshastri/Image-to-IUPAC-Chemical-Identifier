@@ -151,14 +151,18 @@ def _compileData(cur_batch):
     DataFrame.to_csv('CompiledDataset/data.csv', mode='a')
 
 #Compile data in batches of 100
+'''
 for i in range(BATCHES):
     print(i)
     _compileData(i)
+'''
 
 #concatenated = pandas.concat([df1, df2], axis="columns")
 
 #'''
-
+#Loading dataframe from csv
+LoadedDF = pd.read_csv('CompiledDataset/data.csv')
+print(LoadedDF)
 #-------------Image Loading
 '''
 loaded_img = tf.keras.preprocessing.image.load_img('uh.png', True)#colour_mode="grayscale")
