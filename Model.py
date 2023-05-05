@@ -18,7 +18,8 @@ from rdkit.Chem import RDKFingerprint
 from rdkit.Chem import rdMolDescriptors
 
 #Constants
-BATCH_SIZE = 5
+BATCH_SIZE = 50
+BATCHES = 25
 
 #-----------Graph representation
 '''
@@ -101,24 +102,60 @@ fingerprint_c = np.array(RDKFingerprint(rdk_mol))
 print(c.iupac_name, "F_Print: ", fingerprint_c, len(fingerprint_c))
 
 #Getting a collection of the above:
-for i in range(BATCH_SIZE):
-    #Generate random molecule, get RDKit molecule object representation -> grpah representation
-    cid = random.randint(1, 9999999)
-    smiles = pcp.Compound.from_cid(cid).isomeric_smiles
-    molecule = Chem.MolFromSmiles(smiles)
+def _compileData(cur_batch):
+    dataDict = {}
+    dataDict['Images'] = []
+    dataDict['CIDs'] = []
+    #dataDict['GraphEmbeddings'] = []
+    dataDict['SMILES'] = []
+    dataDict['Graphs'] = []
+    #dataDict['BondInfo'] = []
+    #dataDict['StereoInfo'] = []
+    #dataDict['']
+    for i in range(BATCH_SIZE):
+        #Generate random molecule, get RDKit molecule object representation -> grpah representation
+        cid = random.randint(1, 9999999)
+        smiles = pcp.Compound.from_cid(cid).isomeric_smiles
+        molecule = Chem.MolFromSmiles(smiles)
 
-    #Obtain graph representation of molecule, and add to dataframe
-    g_mol = mol_to_graph(molecule)
+        #Obtain graph representation of molecule, and add to dataframe
+        g_mol = mol_to_graph(molecule)
 
-    #Retrieve image and save to file
-    img_name = ('ImageData/uh' + str(i) + '.png')
-    pcp.download('PNG', img_name, cid, 'cid', image_size='large', overwrite=True)
+        #Retrieve image and save to file
+        img_name = ('ImageData/uh' + str(i+(cur_batch*BATCH_SIZE)) + '.png')
+        pcp.download('PNG', img_name, cid, 'cid', image_size='large', overwrite=True)
 
-    #Save image address, cid, SMIlES and graph information in a csv TODO
+        #Save image address, CID and graph objects in dict 
+        dataDict['Images'].append(img_name)
+        dataDict['CIDs'].append(cid)
+        dataDict['SMILES'].append(smiles)
+        dataDict['Graphs'].append(g_mol)
 
-    print(i)#, ": ", molecule)
-    time.sleep(0.2)
-print("Done")
+        print(i)#, ": ", molecule)
+        time.sleep(0.5)
+
+    #dataDict['GraphEmbeddings'] = dataDict['Graphs'].apply(lambda x: mol_to_nx(x))
+    embed_model = Graph2Vec()
+    embed_model.fit(dataDict['Graphs'])
+
+    #Get df representation of embeddings (to merge with main dataset dataframe)
+    #dataDict['GraphEmbeddings'] = model.get_embedding()#.flatten()
+    df_embedds = pd.DataFrame(embed_model.get_embedding())
+    print("Done")
+
+    #Data df reprentation of dictionary, merge embeddings to it
+    DataFrame = pd.DataFrame.from_dict(dataDict)
+    DataFrame = pd.concat([DataFrame, df_embedds], axis="columns")
+
+    print(DataFrame)
+    DataFrame.to_csv('CompiledDataset/data.csv', mode='a')
+
+#Compile data in batches of 100
+for i in range(BATCHES):
+    print(i)
+    _compileData(i)
+
+#concatenated = pandas.concat([df1, df2], axis="columns")
 
 #'''
 
