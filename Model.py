@@ -83,7 +83,7 @@ def mol_to_graph(mol):
 #Get Embeddings
 
 #---------Random Chemical (for ingestion)
-#'''
+'''
 #Retrieve compound object random.randint(0, 999999))
 cid = random.randint(0, 9999999)
 c = pcp.Compound.from_cid(cid)
@@ -100,7 +100,7 @@ rdk_mol = Chem.MolFromSmiles(c_smile)
 #Get Fingerprint as numpy array
 fingerprint_c = np.array(RDKFingerprint(rdk_mol))
 print(c.iupac_name, "F_Print: ", fingerprint_c, len(fingerprint_c))
-
+'''
 #Getting a collection of the above:
 def _compileData(cur_batch):
     dataDict = {}
@@ -163,6 +163,21 @@ for i in range(BATCHES):
 #Loading dataframe from csv
 LoadedDF = pd.read_csv('CompiledDataset/data.csv')
 print(LoadedDF)
+
+RelevantDF = LoadedDF['Images']
+RelevantDF = pd.concat([RelevantDF, LoadedDF[[str(i) for i in range(128)]]], axis="columns")
+
+count = 0
+for i in range(1, BATCHES):
+    drop_i = i*BATCH_SIZE + (i-1)
+    print(RelevantDF['Images'][drop_i])
+    RelevantDF = RelevantDF.drop(drop_i)
+    count+=1
+
+print(RelevantDF, count)
+#Save to csv
+RelevantDF.to_csv('CompiledDataset/relevant_data.csv')
+#RelevantDF.to_excel('CompiledDataset/relevant_data.xlsx')
 #-------------Image Loading
 '''
 loaded_img = tf.keras.preprocessing.image.load_img('uh.png', True)#colour_mode="grayscale")
