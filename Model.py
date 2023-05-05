@@ -77,7 +77,21 @@ print(cv2.imread('uh.png').shape)
 
 #--------------Net
 #'''
+#Test distance measurements
+h3o = pcp.Compound.from_cid(123332)
+h2o = pcp.Compound.from_cid(962)
 
+rdk_h3o = Chem.MolFromSmiles(h3o.isomeric_smiles)
+rdk_h2o = Chem.MolFromSmiles(h2o.isomeric_smiles)
+
+f3 = np.array(RDKFingerprint(rdk_h3o))
+f2 = np.array(RDKFingerprint(rdk_h2o))
+
+print(h3o.isomeric_smiles, h2o.isomeric_smiles)
+
+#Print difference lengths
+print("wter v water", np.linalg.norm(np.subtract(f3, f2)))
+print("wter v whatever", np.linalg.norm(np.subtract(f2, fingerprint_c)))
 #'''
 
 
