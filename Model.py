@@ -17,26 +17,8 @@ from rdkit.Chem import Draw
 from rdkit.Chem import RDKFingerprint
 from rdkit.Chem import rdMolDescriptors
 
-#---------Random Chemical (for ingestion)
-#'''
-#Retrieve compound object random.randint(0, 999999))
-cid = random.randint(0, 9999999)
-c = pcp.Compound.from_cid(cid)
-
-#Get SMILE representation
-c_smile = (c.isomeric_smiles)
-
-#Download Image from CID
-pcp.download('PNG', 'uh.png', cid, 'cid', image_size='large', overwrite=True)
-
-#Get RDK representation of molecule
-rdk_mol = Chem.MolFromSmiles(c_smile)
-
-#Get Fingerprint as numpy array
-fingerprint_c = np.array(RDKFingerprint(rdk_mol))
-print(c.iupac_name, "F_Print: ", fingerprint_c, len(fingerprint_c))
-
-#'''
+#Constants
+BATCH_SIZE = 5
 
 #-----------Graph representation
 '''
@@ -56,8 +38,6 @@ for b in t2_bonds:
 Draw.MolToFile(Chem.MolFromSmiles(thing1), 't1.png')
 Draw.MolToFile(Chem.MolFromSmiles(thing2), 't2.png')
 '''
-rdk_bonds = rdk_mol.GetBonds()
-rdk_atoms = rdk_mol.GetAtoms()
 
 def mol_to_graph(mol):
     '''
@@ -97,11 +77,50 @@ def mol_to_graph(mol):
     return graph
 
 #Test
-print(mol_to_graph(rdk_mol))
+#print("Graph: ", mol_to_graph(rdk_mol))
 
-#Get Embedding
+#Get Embeddings
 
+#---------Random Chemical (for ingestion)
+#'''
+#Retrieve compound object random.randint(0, 999999))
+cid = random.randint(0, 9999999)
+c = pcp.Compound.from_cid(cid)
 
+#Get SMILE representation
+c_smile = (c.isomeric_smiles)
+
+#Download Image from CID
+pcp.download('PNG', 'uh.png', cid, 'cid', image_size='large', overwrite=True)
+
+#Get RDK representation of molecule
+rdk_mol = Chem.MolFromSmiles(c_smile)
+
+#Get Fingerprint as numpy array
+fingerprint_c = np.array(RDKFingerprint(rdk_mol))
+print(c.iupac_name, "F_Print: ", fingerprint_c, len(fingerprint_c))
+
+#Getting a collection of the above:
+for i in range(BATCH_SIZE):
+    #Generate random molecule, get RDKit molecule object representation -> grpah representation
+    cid = random.randint(1, 9999999)
+    smiles = pcp.Compound.from_cid(cid).isomeric_smiles
+    molecule = Chem.MolFromSmiles(smiles)
+
+    #Obtain graph representation of molecule, and add to dataframe
+    g_mol = mol_to_graph(molecule)
+
+    #Retrieve image and save to file
+    img_name = ('ImageData/uh' + str(i) + '.png')
+    pcp.download('PNG', img_name, cid, 'cid', image_size='large', overwrite=True)
+
+    #Save image address, cid, SMIlES and graph information in a csv TODO
+
+    print(i)#, ": ", molecule)
+    time.sleep(0.2)
+print("Done")
+
+#'''
 
 #-------------Image Loading
 '''
