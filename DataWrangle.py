@@ -141,9 +141,11 @@ def Retrieve():
 LoadedDF = pd.read_csv('CompiledDataset/data.csv')
 print(LoadedDF)
 
+#Extract image filepaths and embedding columns
 RelevantDF = LoadedDF['Images']
 RelevantDF = pd.concat([RelevantDF, LoadedDF[[str(i) for i in range(128)]]], axis="columns")
 
+#Drop some repeated headers
 for i in range(1, BATCHES):
     drop_i = i*BATCH_SIZE + (i-1)
     print(RelevantDF['Images'][drop_i])
