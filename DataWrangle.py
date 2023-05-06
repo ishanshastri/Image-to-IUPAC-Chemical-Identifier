@@ -58,7 +58,7 @@ def mol_to_graph(mol):
                                         bond.GetEndAtomIdx(),
                                         bond_type=bond.GetBondType())), excluded=['g'])
 
-    #Populate graph with edges and nodes DOESN'T WORK
+    #Populate graph with edges and nodes DOESN'T WORK--TODO
     #add_nodes(graph, atoms)
     #add_nodes(graph, bonds)
 
@@ -77,41 +77,18 @@ def mol_to_graph(mol):
 
     return graph
 
-#Test
-#print("Graph: ", mol_to_graph(rdk_mol))
-
-#Get Embeddings
-
 #---------Random Chemical (for ingestion)
-'''
-#Retrieve compound object random.randint(0, 999999))
-cid = random.randint(0, 9999999)
-c = pcp.Compound.from_cid(cid)
-
-#Get SMILE representation
-c_smile = (c.isomeric_smiles)
-
-#Download Image from CID
-pcp.download('PNG', 'uh.png', cid, 'cid', image_size='large', overwrite=True)
-
-#Get RDK representation of molecule
-rdk_mol = Chem.MolFromSmiles(c_smile)
-
-#Get Fingerprint as numpy array
-fingerprint_c = np.array(RDKFingerprint(rdk_mol))
-print(c.iupac_name, "F_Print: ", fingerprint_c, len(fingerprint_c))
-'''
 #Getting a collection of the above:
 def _compileData(cur_batch):
+    """
+    Retrieve data from PUBCHEM in batches (call once for each batch), write to a csv file for future use
+    """
     dataDict = {}
     dataDict['Images'] = []
     dataDict['CIDs'] = []
-    #dataDict['GraphEmbeddings'] = []
     dataDict['SMILES'] = []
     dataDict['Graphs'] = []
-    #dataDict['BondInfo'] = []
-    #dataDict['StereoInfo'] = []
-    #dataDict['']
+
     for i in range(BATCH_SIZE):
         #Generate random molecule, get RDKit molecule object representation -> grpah representation
         cid = random.randint(1, 9999999)
@@ -151,15 +128,15 @@ def _compileData(cur_batch):
     DataFrame.to_csv('CompiledDataset/data.csv', mode='a')
 
 #Compile data in batches of 100
-'''
-for i in range(BATCHES):
-    print(i)
-    _compileData(i)
-'''
+def Retrieve():
+    for i in range(BATCHES):
+        print(i)
+        _compileData(i)
 
-#concatenated = pandas.concat([df1, df2], axis="columns")
-
+#Test
+#Retrieve()
 #'''
+
 #Loading dataframe from csv
 LoadedDF = pd.read_csv('CompiledDataset/data.csv')
 print(LoadedDF)
@@ -167,17 +144,13 @@ print(LoadedDF)
 RelevantDF = LoadedDF['Images']
 RelevantDF = pd.concat([RelevantDF, LoadedDF[[str(i) for i in range(128)]]], axis="columns")
 
-count = 0
 for i in range(1, BATCHES):
     drop_i = i*BATCH_SIZE + (i-1)
     print(RelevantDF['Images'][drop_i])
     RelevantDF = RelevantDF.drop(drop_i)
-    count+=1
 
-print(RelevantDF, count)
 #Save to csv
 RelevantDF.to_csv('CompiledDataset/relevant_data.csv')
-#RelevantDF.to_excel('CompiledDataset/relevant_data.xlsx')
 #-------------Image Loading
 '''
 loaded_img = tf.keras.preprocessing.image.load_img('uh.png', True)#colour_mode="grayscale")
@@ -186,8 +159,7 @@ print(loaded_img)
 #Display image size
 print(cv2.imread('uh.png').shape)
 '''
-
-#--------------Net
+#--------------Net--DEPRECATED
 '''
 #Test distance measurements
 h3o = pcp.Compound.from_cid(123332)
