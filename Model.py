@@ -27,11 +27,6 @@ def GetData(file):
     Data = pd.concat([Data, d[[str(i) for i in range(128)]]], axis="columns")
     return Data
 
-#TEST:
-
-Data = GetData(DATA_PATH)
-#embedding = _getEmbedding(0, )
-
 def _getEmbedding(index, df):
     """
     Return an embedding from dataframe (consisting of only the embeddings)
@@ -49,3 +44,14 @@ def generator(inputs, outputs, batchSize):
         ind += batchSize
         if ind + batchSize > N:
             ind = 0
+
+#TEST:
+#For single datapoint
+Data = GetData(DATA_PATH)
+embedding = _getEmbedding(0, Data.drop(['Images'], axis=1))
+input = Data['Images'][0]
+print(len(embedding), input, embedding)
+
+#for multiple datapoints
+embeds = Data.drop(['Images'], axis=1)
+print([(Data['Images'][i], _getEmbedding(i, embeds)) for i in range(0, 5)])
