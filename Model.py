@@ -30,4 +30,22 @@ def GetData(file):
 #TEST:
 
 Data = GetData(DATA_PATH)
-print(Data)
+#embedding = _getEmbedding(0, )
+
+def _getEmbedding(index, df):
+    """
+    Return an embedding from dataframe (consisting of only the embeddings)
+    """
+    return df.iloc[index].to_numpy()
+
+def generator(inputs, outputs, batchSize):
+    """
+    Generating function for input images (random chem diagrams from pubchem) and corresponding graph embedding outputs; generates batches
+    """
+    N = len(inputs)
+    ind = 0
+    while True:
+        yield inputs[ind:(ind+batchSize)], [_getEmbedding(i, outputs) for i in range(ind, (ind+batchSize))]
+        ind += batchSize
+        if ind + batchSize > N:
+            ind = 0
