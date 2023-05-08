@@ -6,10 +6,15 @@ import pandas as pd
 import time
 import numpy as np
 import random
-import cv2
 import networkx as nx
 from karateclub import Graph2Vec
 
+#Enable eager execution TODO
+'''
+import tensorflow as tf
+tf.enable_eager_execution()
+tfe = tf.contrib.eager
+'''
 DATA_PATH = 'CompiledDataset/relevant_data.csv'
 
 #Retrieve dataframe from stored csv file
@@ -23,7 +28,6 @@ def GetData(file):
     return Data
 
 #TEST:
-'''
+
 Data = GetData(DATA_PATH)
 print(Data)
-'''
