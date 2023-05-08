@@ -9,6 +9,12 @@ import random
 import networkx as nx
 from karateclub import Graph2Vec
 
+#Enable eager execution TODO
+'''
+import tensorflow as tf
+tf.enable_eager_execution()
+tfe = tf.contrib.eager
+'''
 DATA_PATH = 'CompiledDataset/relevant_data.csv'
 
 #Retrieve dataframe from stored csv file
@@ -21,7 +27,36 @@ def GetData(file):
     Data = pd.concat([Data, d[[str(i) for i in range(128)]]], axis="columns")
     return Data
 
+def _getEmbedding(index, df):
+    """
+    Return an embedding from dataframe (consisting of only the embeddings)
+    """
+    return df.iloc[index].to_numpy()
+
+def generator(inputs, outputs, batchSize):
+    """
+    Generating function for input images (random chem diagrams from pubchem) and corresponding graph embedding outputs; generates batches
+    """
+    N = len(inputs)
+    ind = 0
+    while True:
+        yield inputs[ind:(ind+batchSize)], [_getEmbedding(i, outputs) for i in range(ind, (ind+batchSize))]
+        ind += batchSize
+        if ind + batchSize > N:
+            ind = 0
+
 #TEST:
+
 
 Data = GetData(DATA_PATH)
 print(Data)
+#For single datapoint
+Data = GetData(DATA_PATH)
+embedding = _getEmbedding(0, Data.drop(['Images'], axis=1))
+input = Data['Images'][0]
+print(len(embedding), input, embedding)
+
+#for multiple datapoints
+embeds = Data.drop(['Images'], axis=1)
+print([(Data['Images'][i], _getEmbedding(i, embeds)) for i in range(0, 5)])
+
