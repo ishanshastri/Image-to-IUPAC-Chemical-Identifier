@@ -22,24 +22,6 @@ BATCH_SIZE = 50
 BATCHES = 25
 
 #-----------Graph representation
-'''
-#see bond info
-rdk_bonds = rdk_mol.GetBonds()
-thing1 = "FC1=C(F)CC=CC1"
-thing2 = "FC1C(F)=CC=CC=C1"
-t1_bonds = Chem.MolFromSmiles(thing1).GetBonds()
-t2_bonds = Chem.MolFromSmiles(thing2).GetBonds()
-for b in t1_bonds:
-    print(b.GetBondType())
-print("=====")
-for b in t2_bonds:
-    print(b.GetBondType())
-#for b in rdk_bonds:
-#    print(b.GetBondType(), b.GetBondDir())
-Draw.MolToFile(Chem.MolFromSmiles(thing1), 't1.png')
-Draw.MolToFile(Chem.MolFromSmiles(thing2), 't2.png')
-'''
-
 def mol_to_graph(mol):
     '''
     Convert an RDK molecule to graph representation (nx graph)
@@ -153,32 +135,8 @@ for i in range(1, BATCHES):
 
 #Save to csv
 RelevantDF.to_csv('CompiledDataset/relevant_data.csv')
-#-------------Image Loading
-'''
-loaded_img = tf.keras.preprocessing.image.load_img('uh.png', True)#colour_mode="grayscale")
-print(loaded_img)
 
-#Display image size
-print(cv2.imread('uh.png').shape)
-'''
-#--------------Net--DEPRECATED
-'''
-#Test distance measurements
-h3o = pcp.Compound.from_cid(123332)
-h2o = pcp.Compound.from_cid(962)
 
-rdk_h3o = Chem.MolFromSmiles(h3o.isomeric_smiles)
-rdk_h2o = Chem.MolFromSmiles(h2o.isomeric_smiles)
-
-f3 = np.array(RDKFingerprint(rdk_h3o))
-f2 = np.array(RDKFingerprint(rdk_h2o))
-
-print(h3o.isomeric_smiles, h2o.isomeric_smiles)
-
-#Print difference lengths
-print("wter v water", np.linalg.norm(np.subtract(f3, f2)))
-print("wter v whatever", np.linalg.norm(np.subtract(f2, fingerprint_c)))
-'''
 
 
 
