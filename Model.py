@@ -8,6 +8,8 @@ import numpy as np
 import random
 import networkx as nx
 from karateclub import Graph2Vec
+import scipy
+import cv2
 
 #Enable eager execution TODO
 '''
@@ -46,17 +48,16 @@ def generator(inputs, outputs, batchSize):
             ind = 0
 
 #TEST:
-
-
-Data = GetData(DATA_PATH)
-print(Data)
 #For single datapoint
 Data = GetData(DATA_PATH)
 embedding = _getEmbedding(0, Data.drop(['Images'], axis=1))
 input = Data['Images'][0]
 print(len(embedding), input, embedding)
 
-#for multiple datapoints
+#for multiple datapoints (5)
 embeds = Data.drop(['Images'], axis=1)
-print([(Data['Images'][i], _getEmbedding(i, embeds)) for i in range(0, 5)])
+print([(tf.keras.preprocessing.image.load_img(Data['Images'][i], True), _getEmbedding(i, embeds)) for i in range(0, 5)])
 
+#-------------Image Loading
+loaded_img = tf.keras.preprocessing.image.load_img('uh.png', True)#colour_mode="grayscale")
+print(loaded_img)
