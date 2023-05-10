@@ -52,8 +52,7 @@ def generator(inputs, outputs, batchSize):
         if ind + batchSize > N:
             ind = 0
 
-#TEST:
-#For single datapoint
+#Retrieve data
 Data = GetData(DATA_PATH)
 
 #Split training and test data
@@ -62,9 +61,6 @@ TrainY = np.array([_getEmbedding(i, Data.drop(['Images'], axis=1)) for i in rang
 
 TestX = np.asarray([img_to_array(tf.keras.preprocessing.image.load_img(Data['Images'][i], True).resize((150, 150))) for i in range(1000, 1249)])
 TestY = np.asarray([_getEmbedding(i, Data.drop(['Images'], axis=1)) for i in range(1000, 1249)])
-
-#print(TestX)
-#print(TestY)
 
 #-------------Image Loading
 loaded_img = tf.keras.preprocessing.image.load_img('ImageData/uh1.png', True)#colour_mode="grayscale")
@@ -90,12 +86,13 @@ model.compile(optimizer='adam',
               loss='mean_squared_error',
               metrics=['accuracy'])
 
-'''
+'''training model USING GENERATOR 
 history = model.fit(generator(Data['Images'], Data.drop(['Images'], axis=1), 32),
  validation_data = (TestX, TestY), steps_per_epoch = 1000 // 32,
  epochs = 10)
 '''
- 
+
+#Train model
 history = model.fit(TrainX, TrainY,
  validation_data = (TestX, TestY), 
  epochs = 10)
