@@ -10,6 +10,9 @@ import networkx as nx
 from karateclub import Graph2Vec
 import scipy
 import cv2
+from tensorflow.keras.utils import load_img
+from tensorflow.keras.utils import img_to_array
+from tensorflow.keras.utils import array_to_img
 
 #Enable eager execution TODO
 '''
@@ -43,7 +46,7 @@ def generator(inputs, outputs, batchSize):
     ind = 0
     while True:
         #yield inputs[ind:(ind+batchSize)], [_getEmbedding(i, outputs) for i in range(ind, (ind+batchSize))]
-        yield [tf.keras.preprocessing.image.load_img(inputs[i], True).resize(150, 150) for i in range(ind, (ind+batchSize))],[_getEmbedding(i, outputs) for i in range(ind, (ind+batchSize))]
+        yield [tf.keras.preprocessing.image.load_img(inputs[i], True).resize((150, 150)) for i in range(ind, (ind+batchSize))],[_getEmbedding(i, outputs) for i in range(ind, (ind+batchSize))]
         ind += batchSize
         #ind += batchSize
         if ind + batchSize > N:
@@ -54,8 +57,11 @@ def generator(inputs, outputs, batchSize):
 Data = GetData(DATA_PATH)
 
 #Split training and test data
-TestX = [tf.keras.preprocessing.image.load_img(Data['Images'][i], True).resize((150, 150)) for i in range(1000, 1249)]
-TestY = [_getEmbedding(i, Data.drop(['Images'], axis=1)) for i in range(1000, 1249)]
+TrainX = np.asarray([img_to_array(tf.keras.preprocessing.image.load_img(Data['Images'][i], True).resize((150, 150))) for i in range(0, 1000)])
+TrainY = np.array([_getEmbedding(i, Data.drop(['Images'], axis=1)) for i in range(0, 1000)])
+
+TestX = np.asarray([img_to_array(tf.keras.preprocessing.image.load_img(Data['Images'][i], True).resize((150, 150))) for i in range(1000, 1249)])
+TestY = np.asarray([_getEmbedding(i, Data.drop(['Images'], axis=1)) for i in range(1000, 1249)])
 
 #print(TestX)
 #print(TestY)
@@ -64,11 +70,7 @@ TestY = [_getEmbedding(i, Data.drop(['Images'], axis=1)) for i in range(1000, 12
 loaded_img = tf.keras.preprocessing.image.load_img('ImageData/uh1.png', True)#colour_mode="grayscale")
 #v_loadimg = np.vectorize(tf.keras.preprocessing.image.load_img)
 #v_loadimg(['ImageData/uh0.png', 'ImageData/uh1.png'], True)
-'''
-print(loaded_img.resize((30, 30)).size)
-loaded_img = loaded_img.resize((150, 150))
-loaded_img.save('resized_uh.jpg')
-'''
+
 #-----------MODEL
 model = models.Sequential()
 model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(150, 150, 1)))
@@ -87,8 +89,16 @@ model.summary()
 model.compile(optimizer='adam',
               loss='mean_squared_error',
               metrics=['accuracy'])
+
 '''
-history = model.fit(train_images, train_labels, epochs=10)
+history = model.fit(generator(Data['Images'], Data.drop(['Images'], axis=1), 32),
+ validation_data = (TestX, TestY), steps_per_epoch = 1000 // 32,
+ epochs = 10)
+'''
+ 
+history = model.fit(TrainX, TrainY,
+ validation_data = (TestX, TestY), 
+ epochs = 10)
 
 plt.plot(history.history['accuracy'], label='accuracy')
 plt.plot(history.history['val_accuracy'], label = 'val_accuracy')
@@ -96,7 +106,3 @@ plt.xlabel('Epoch')
 plt.ylabel('Accuracy')
 plt.ylim([0.5, 1])
 plt.legend(loc='lower right')
-
-model.fit_generator(generator(Data['Images'], trainY, batch_size = 32),
- validation_data = (testX, testY), steps_per_epoch = len(trainX) // 32,
- epochs = 10)'''
