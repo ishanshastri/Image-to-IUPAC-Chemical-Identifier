@@ -8,7 +8,7 @@ Graph Tools: Networkx (Graph toolkit), Graph2Vec (Graph embedding toolkit)
 # Architecture Overview
 The model takes a PNG image as input (resized to 150 x 150 pixels), and produces a graph embedding as output. This is then used to obtain a graph representation of a molecule, from which the IUPAC name is constructed and otuputted.
 
-Current neural network architecture (tensorflow model summary):
+# Current neural network architecture (tensorflow model summary):
 _________________________________________________________________
  Layer (type)                Output Shape              Param #
 =================================================================
@@ -35,5 +35,7 @@ _________________________________________________________________
 =================================================================
 
 Total params: 16,923,456
+
 Trainable params: 16,923,456
+
 Non-trainable params: 0
