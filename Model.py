@@ -9,6 +9,7 @@ import random
 import networkx as nx
 from karateclub import Graph2Vec
 import scipy
+from scipy import spatial
 import cv2
 from tensorflow.keras.utils import load_img
 from tensorflow.keras.utils import img_to_array
@@ -38,6 +39,14 @@ def _getEmbedding(index, df):
     """
     return df.iloc[index].to_numpy()
 
+def _get_closest_embedding(vector, embeds):
+    #euclidean = lambda x, y: 
+    #distances = {embed:spatial.distance.cosine(vector, embed) for embed in embeds}
+    #sorted_dists = sorted(distances.items(), key=lambda x:x[1])
+    distances = [(embed, spatial.distance.cosine(vector, embed)) for embed in embeds]
+    sorted_dists = sorted(distances, key=lambda x:x[1])
+    return sorted_dists[0]
+
 def generator(inputs, outputs, batchSize):
     """
     Generating function for input images (random chem diagrams from pubchem) and corresponding graph embedding outputs; generates batches
@@ -61,6 +70,8 @@ TrainY = np.array([_getEmbedding(i, Data.drop(['Images'], axis=1)) for i in rang
 
 TestX = np.asarray([img_to_array(tf.keras.preprocessing.image.load_img(Data['Images'][i], True).resize((150, 150))) for i in range(1000, 1249)])
 TestY = np.asarray([_getEmbedding(i, Data.drop(['Images'], axis=1)) for i in range(1000, 1249)])
+
+AllEmbeddings = np.concatenate((TrainY, TestY))
 
 #-------------Image Loading
 loaded_img = tf.keras.preprocessing.image.load_img('ImageData/uh1.png', True)#colour_mode="grayscale")
@@ -90,12 +101,27 @@ model.compile(optimizer='adam',
 history = model.fit(generator(Data['Images'], Data.drop(['Images'], axis=1), 32),
  validation_data = (TestX, TestY), steps_per_epoch = 1000 // 32,
  epochs = 10)
-'''
+
 
 #Train model
 history = model.fit(TrainX, TrainY,
  validation_data = (TestX, TestY), 
  epochs = 10)
+'''
+history = model.fit(TrainX, TrainY,
+ validation_data = (TestX, TestY), 
+ epochs = 1)
+
+# Running samples
+#sample_chemical_embed = AllEmbeddings[50]
+sample_chemical_diagram = TrainX[50]
+#model_prediction = model.predict([sample_chemical_diagram])
+model_prediction = model(np.reshape(sample_chemical_diagram, (1, 150, 150)))
+closest_embed = _get_closest_embedding(vector=model_prediction[0], embeds=AllEmbeddings)[0]
+
+# TODO retrieve corresponding iupac, compare w/ actual iupac
+ 
+#def loadAndTrainLSTM()
 
 plt.plot(history.history['accuracy'], label='accuracy')
 plt.plot(history.history['val_accuracy'], label = 'val_accuracy')
