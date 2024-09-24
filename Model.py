@@ -1,19 +1,20 @@
 #TF etc (and friends)
+import keras.api
 import tensorflow as tf
-from tensorflow.keras import datasets, layers, models
+import keras
+# from keras import layers, models
 import matplotlib.pyplot as plt
 import pandas as pd
 import time
 import numpy as np
 import random
-import networkx as nx
-from karateclub import Graph2Vec
-import scipy
+# import networkx as nx
+# from karateclub import Graph2Vec
 from scipy import spatial
 import cv2
-from tensorflow.keras.utils import load_img
+# from tensorflow.keras.utils import load_img
 from tensorflow.keras.utils import img_to_array
-from tensorflow.keras.utils import array_to_img
+# from tensorflow.keras.utils import array_to_img
 
 #Enable eager execution TODO
 '''
@@ -65,7 +66,7 @@ def generator(inputs, outputs, batchSize):
 Data = GetData(DATA_PATH)
 
 #Split training and test data
-TrainX = np.asarray([img_to_array(tf.keras.preprocessing.image.load_img(Data['Images'][i], True).resize((150, 150))) for i in range(0, 1000)])
+TrainX = np.asarray([keras.img_to_array(tf.keras.preprocessing.image.load_img(Data['Images'][i], True).resize((150, 150))) for i in range(0, 1000)])
 TrainY = np.array([_getEmbedding(i, Data.drop(['Images'], axis=1)) for i in range(0, 1000)])
 
 TestX = np.asarray([img_to_array(tf.keras.preprocessing.image.load_img(Data['Images'][i], True).resize((150, 150))) for i in range(1000, 1249)])
@@ -79,7 +80,7 @@ loaded_img = tf.keras.preprocessing.image.load_img('ImageData/uh1.png', True)#co
 #v_loadimg(['ImageData/uh0.png', 'ImageData/uh1.png'], True)
 
 #-----------MODEL
-model = models.Sequential()
+model = keras.models.Sequential()
 model.add(layers.Conv2D(32, (3, 3), activation='relu', input_shape=(150, 150, 1)))
 model.add(layers.MaxPooling2D((2, 2)))
 model.add(layers.Conv2D(64, (3, 3), activation='relu'))
